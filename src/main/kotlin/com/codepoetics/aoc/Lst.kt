@@ -1,11 +1,28 @@
 package com.codepoetics.aoc
 
+import kotlin.IndexOutOfBoundsException
+
 infix fun <T : Any> T.cons(other: Lst<T>): Lst<T> = when (other) {
     is Lst.Empty -> Lst.Cons(this, other as Lst<T>, this, 1)
     else -> Lst.Cons(this, other, other.last, other.length + 1)
 }
 
+fun <T : Any> Iterable<T>.toLst() = Lst.of(this)
+
 fun <T : Any> Sequence<T>.toLst() = Lst.of(this)
+
+fun <T : Any> Lst<Lst<T>>.transpose(): Lst<Lst<T>> = if (this.isEmpty()) Lst.empty() else
+    (this as Lst.Cons<Lst<T>>).let { (head, tail) ->
+        val result = head.asSequence().map { Lst.of(it) }.toMutableList()
+
+        tail.forEach { next ->
+            next.forEachIndexed { i, b ->
+                result[i] = b cons result[i]
+            }
+        }
+
+        result.asSequence().toLst()
+    }
 
 sealed interface Lst<T : Any> : Iterable<T> {
 
@@ -51,16 +68,42 @@ sealed interface Lst<T : Any> : Iterable<T> {
         is Empty -> emptySequence()
         is Cons<T> -> when (tail) {
             is Empty -> sequenceOf(this)
-            is Cons<T> -> choices().asSequence().flatMap { (choice, remainder) ->
+            is Cons<T> -> choices().flatMap { (choice, remainder) ->
                 remainder.permutations().map { choice cons it }
             }
         }
     }
 
-    fun choices(): Lst<Pair<T, Lst<T>>> = when (this) {
-        is Empty -> empty()
-        is Cons<T> -> (head to tail) cons tail.choices().map { (chosen, remainder) ->
-            chosen to (head cons remainder)
+    fun choices(): Sequence<Pair<T, Lst<T>>>
+
+    fun conses(): Sequence<Cons<T>>
+
+    val destructure: Destructure<T> get() = Destructure(this)
+
+    class Destructure<T : Any>(private val wrapped: Lst<T>) {
+        operator fun component1(): T = when(wrapped) {
+            is Empty -> throw IndexOutOfBoundsException()
+            is Cons<T> -> wrapped.head
+        }
+
+        operator fun component2(): T = when(wrapped) {
+            is Empty -> throw IndexOutOfBoundsException()
+            is Cons<T> -> wrapped.tail.destructure.component1()
+        }
+
+        operator fun component3(): T = when(wrapped) {
+            is Empty -> throw IndexOutOfBoundsException()
+            is Cons<T> -> wrapped.tail.destructure.component2()
+        }
+
+        operator fun component4(): T = when(wrapped) {
+            is Empty -> throw IndexOutOfBoundsException()
+            is Cons<T> -> wrapped.tail.destructure.component3()
+        }
+
+        operator fun component5(): T = when(wrapped) {
+            is Empty -> throw IndexOutOfBoundsException()
+            is Cons<T> -> wrapped.tail.destructure.component4()
         }
     }
 
@@ -71,15 +114,34 @@ sealed interface Lst<T : Any> : Iterable<T> {
         override fun filter(predicate: (Any) -> Boolean): Lst<Any> = empty()
         override val first: Any get() = error("Empty Lst has no first item")
         override val last: Any get() = error("Empty Lst has no last item")
+        override fun choices(): Sequence<Pair<Any, Lst<Any>>> = emptySequence()
+        override fun conses(): Sequence<Cons<Any>> = emptySequence()
+
         override fun toString() = "[]"
     }
 
     data class Cons<T : Any>(val head: T, val tail: Lst<T>, override val last: T, override val length: Int) : Lst<T> {
         override fun isEmpty(): Boolean = false
-        override fun <R : Any> map(f: (T) -> R): Lst<R>  = f(head) cons tail.map(f)
+        override fun <R : Any> map(f: (T) -> R): Lst<R> = f(head) cons tail.map(f)
         override fun filter(predicate: (T) -> Boolean): Lst<T> =
             if (predicate(head)) this else tail.filter(predicate)
+
         override val first: T get() = head
+        override fun choices(): Sequence<Pair<T, Lst<T>>> = sequence {
+            yield(head to tail)
+            for ((chosen, remainder) in tail.choices()) {
+                yield(chosen to (head cons remainder))
+            }
+        }
+
+        override fun conses(): Sequence<Cons<T>> = sequence {
+            var cursor: Lst<T> = this@Cons
+            while (cursor is Cons<T>) {
+                yield(cursor)
+                cursor = cursor.tail
+            }
+        }
+
         override fun toString() = asSequence().joinToString(",", "[", "]")
     }
 }

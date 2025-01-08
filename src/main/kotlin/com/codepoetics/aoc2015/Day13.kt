@@ -2,6 +2,7 @@ package com.codepoetics.aoc2015
 
 import com.codepoetics.aoc.Lst
 import com.codepoetics.aoc.inputLines
+import com.codepoetics.aoc.toLst
 
 private val pattern = Regex("([A-Za-z]+) would (gain|lose) (\\d+) happiness units by sitting next to ([A-Za-z]+).")
 
@@ -16,12 +17,11 @@ fun main() {
 
     val part1 = optimalSeatingValue(preferences)
 
-    val part2Preferences = preferences + preferences.asSequence().map(Preference::person).distinct()
-        .flatMap { person ->
-            sequenceOf(
-                Preference(person, "me", 0),
-                Preference("me", person, 0))
-        }.toList()
+    val part2Preferences = preferences + preferences.asSequence().map(Preference::person).distinct().flatMap { person ->
+        sequenceOf(
+            Preference(person, "me", 0),
+            Preference("me", person, 0))
+    }.toList()
 
     val part2 = optimalSeatingValue(part2Preferences)
 
@@ -35,12 +35,13 @@ private fun optimalSeatingValue(preferences: List<Preference>): Int {
         Preference::happiness
     )
 
-    fun happinessForPair(a: String, b: String) = happinessByPair[a to b]!! + happinessByPair[b to a]!!
-
-    val people = Lst.of(preferences.map(Preference::person).toSet())
+    fun happinessForPair(a: String, b: String): Int = happinessByPair[a to b]!! + happinessByPair[b to a]!!
+    val people = preferences.asSequence().map(Preference::person).distinct().toLst()
 
     return people.permutations().maxOf { seating ->
-        seating.asSequence().windowed(2).sumOf { (a, b) -> happinessForPair(a, b) }
-            + happinessForPair(seating.first, seating.last)
+        seating.asSequence().windowed(2).sumOf { (a, b) ->
+            happinessForPair(a, b)
+        } + happinessForPair(seating.first, seating.last)
     }
 }
+

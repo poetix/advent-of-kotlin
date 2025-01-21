@@ -41,11 +41,15 @@ sealed interface Lst<T : Any> : Iterable<T> {
         }
     }
 
+    val head: T
+    val tail: Lst<T>
     val length: Int
-    val first: T
+    val first: T get() = head
     val last: T
+
     fun isEmpty(): Boolean
     fun isNotEmpty(): Boolean = !isEmpty()
+    fun remove(item: T) = filter { it != item }
 
     override fun iterator(): Iterator<T> = object : Iterator<T> {
 
@@ -112,7 +116,8 @@ sealed interface Lst<T : Any> : Iterable<T> {
         override fun isEmpty(): Boolean = true
         override fun <R : Any> map(f: (Any) -> R): Lst<R> = empty()
         override fun filter(predicate: (Any) -> Boolean): Lst<Any> = empty()
-        override val first: Any get() = error("Empty Lst has no first item")
+        override val head: Any get() = error("Empty Lst has no head")
+        override val tail: Lst<Any> get() = error("Empty Lst has no tail")
         override val last: Any get() = error("Empty Lst has no last item")
         override fun choices(): Sequence<Pair<Any, Lst<Any>>> = emptySequence()
         override fun conses(): Sequence<Cons<Any>> = emptySequence()
@@ -120,13 +125,12 @@ sealed interface Lst<T : Any> : Iterable<T> {
         override fun toString() = "[]"
     }
 
-    data class Cons<T : Any>(val head: T, val tail: Lst<T>, override val last: T, override val length: Int) : Lst<T> {
+    data class Cons<T : Any>(override val head: T, override val tail: Lst<T>, override val last: T, override val length: Int) : Lst<T> {
         override fun isEmpty(): Boolean = false
         override fun <R : Any> map(f: (T) -> R): Lst<R> = f(head) cons tail.map(f)
         override fun filter(predicate: (T) -> Boolean): Lst<T> =
-            if (predicate(head)) this else tail.filter(predicate)
+            if (predicate(head)) head cons tail.filter(predicate) else tail.filter(predicate)
 
-        override val first: T get() = head
         override fun choices(): Sequence<Pair<T, Lst<T>>> = sequence {
             yield(head to tail)
             for ((chosen, remainder) in tail.choices()) {

@@ -31,6 +31,8 @@ fun udlrFrom(c: Char): Point = when(c) {
 }
 
 data class Point(val x: Long, val y: Long) : Comparable<Point> {
+    constructor(x: Int, y: Int) : this(x.toLong(), y.toLong())
+
     operator fun plus(other: Point) = Point(x + other.x, y + other.y)
 
     override fun compareTo(other: Point): Int =

@@ -1,6 +1,6 @@
 package com.codepoetics.aoc2015
 
-import java.util.PriorityQueue
+import java.util.*
 import kotlin.math.max
 
 data class GameState(val playerHp: Int, val bossHp: Int, val mana: Int, val shieldCount: Int, val poisonCount: Int, val rechargeCount: Int, val hardMode: Boolean) {

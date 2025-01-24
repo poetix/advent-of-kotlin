@@ -1,6 +1,9 @@
 package com.codepoetics.aoc2016
 
-import com.codepoetics.aoc.*
+import com.codepoetics.aoc.ORIGIN
+import com.codepoetics.aoc.Point
+import com.codepoetics.aoc.inputLines
+import com.codepoetics.aoc.udlrFrom
 
 fun makeKeypad(vararg rows: String): Map<Point, Char> =
     rows.asSequence().flatMapIndexed { y, untrimmed ->

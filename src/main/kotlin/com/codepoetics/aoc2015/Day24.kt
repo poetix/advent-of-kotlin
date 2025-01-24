@@ -5,7 +5,6 @@ import com.codepoetics.aoc.cons
 import com.codepoetics.aoc.inputLines
 import com.codepoetics.aoc.toLst
 import java.util.*
-import kotlin.collections.ArrayDeque
 
 fun main() {
     val weights = inputLines("/day24.txt").map(String::toInt).sorted().toLst()

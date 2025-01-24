@@ -1,7 +1,5 @@
 package com.codepoetics.aoc
 
-import kotlin.IndexOutOfBoundsException
-
 infix fun <T : Any> T.cons(other: Lst<T>): Lst<T> = when (other) {
     is Lst.Empty -> Lst.Cons(this, other as Lst<T>, this, 1)
     else -> Lst.Cons(this, other, other.last, other.length + 1)

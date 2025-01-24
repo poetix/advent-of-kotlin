@@ -1,6 +1,5 @@
 package com.codepoetics.aoc2015
 
-import com.codepoetics.aoc.Lst
 import com.codepoetics.aoc.inputLines
 import com.codepoetics.aoc.toLst
 

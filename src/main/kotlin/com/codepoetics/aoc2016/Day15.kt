@@ -4,7 +4,7 @@ import com.codepoetics.aoc.chineseRemainderTheorem
 
 private fun findAlignment(vararg discs: Pair<Int, Int>) =
     chineseRemainderTheorem(discs.mapIndexed { i, (position, modulus) ->
-        (position + i + 1) to modulus
+        (position + i + 1).toLong() to modulus.toLong()
     })
 
 fun main() {

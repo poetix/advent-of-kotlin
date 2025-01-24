@@ -1,6 +1,7 @@
 package com.codepoetics.aoc2016
 
-import com.codepoetics.aoc.*
+import com.codepoetics.aoc.Point
+import com.codepoetics.aoc.inputLines
 import com.codepoetics.mariko.api.FromPattern
 import com.codepoetics.mariko.kotlin.interpret
 

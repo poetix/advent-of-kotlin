@@ -1,7 +1,7 @@
 package com.codepoetics.aoc2016
 
 import com.codepoetics.aoc.*
-import java.util.PriorityQueue
+import java.util.*
 import kotlin.math.max
 
 data class SearchState(val position: Point, val path: String, val passcode: String) {

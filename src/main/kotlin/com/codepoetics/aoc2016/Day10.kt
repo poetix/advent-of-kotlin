@@ -1,7 +1,6 @@
 package com.codepoetics.aoc2016
 
 import com.codepoetics.aoc.inputLines
-import kotlin.collections.ArrayDeque
 
 
 sealed interface Destination {
